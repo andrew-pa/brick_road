@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Net;
 
 namespace brick_road
 {
@@ -58,7 +59,7 @@ namespace brick_road
             }
             else
             {
-                if(rnd.Next(0, 10) > 5)
+                if(rnd.Next(0, 10) > 4)
                 {
                     //lowercase
                     return (char)rnd.Next(97, 122);
@@ -71,17 +72,175 @@ namespace brick_road
             }
         }
 
+        enum NameGenerationMode
+        {
+            RandomChars,
+            RandomWords,
+            RandomCNNWords,
+            RandomNames,
+        }
+
+        static NameGenerationMode namegen_mode;
+
+
+        static char[] spacers =
+        {
+            ' ', '_', '-', '.',
+        };
+
+        static string[] name_words =
+        {
+            "noodle",
+            "bob",
+            "dole",
+            "banana",
+            "school",
+            "game",
+            "sonic",
+            "the",
+            "a",
+            "in",
+            "is",
+            "lame",
+            "bad",
+            "stupid",
+            "hedgehog",
+            "halo",
+            "cod",
+            "ness",
+            "factor",
+            "math",
+            "essay",
+            "worm",
+            "worksheet",
+            "review",
+            "history",
+            "english",
+            "swag",
+            "paula",
+            "ant",
+            "shroom",
+            "jeff",
+            "llama",
+            "spanish",
+            "hate",
+            "pics",
+            "docs",
+            "worms",
+            "gams",
+            "food",
+            "stuff",
+            "utils",
+            "my stuff",
+            "my junj",
+            "spelling ftw",
+            "bob dole",
+            "folder",
+           "brick road",
+           "dungeon man",
+           "starman",
+           "pwn",
+           "dwg",
+           "doge",
+           "coins",
+        };
+
+        static List<string> cnn_words = null;
+        static string CleanFileName(string fileName)
+        {
+            return Path.GetInvalidFileNameChars().Aggregate(fileName, (current, c) => current.Replace(c.ToString(), ""));
+        }
+
+        static string RandomName()
+        {
+            if (cnn_words == null)
+            {
+                WebClient wc = new WebClient();
+                string cnn_text = wc.DownloadString("http://cnn.com");
+                string[] cnn_words_raw = cnn_text.Split(' ');
+                cnn_words = new List<string>();
+                foreach(string w in cnn_words_raw)
+                {
+                    if (w.Contains('<') || w.Contains('>') || w.Contains('/') || w.Contains('?') ||
+                        w.Contains('\\') || w.Contains(':') || w.Contains('*') || w.Contains('|') || w.Contains('"')
+                        || w.Contains('=') || w.Contains('(') || w.Contains(')') || w.Contains(',') || w.Contains('\'') 
+                        || w.Contains("cnn") || w.Contains(';'))
+                        continue;
+                    string s = CleanFileName(w);
+                    if (string.IsNullOrEmpty(s) || string.IsNullOrWhiteSpace(s))
+                        continue;
+                    cnn_words.Add(s);
+                }
+            }
+            if (namegen_mode == NameGenerationMode.RandomChars)
+            {
+                StringBuilder sb_name = new StringBuilder();
+                int max = rnd.Next(6, 20);
+                for (int i = 0; i < max; ++i)
+                {
+                    sb_name.Append(random_char());
+                }
+                return sb_name.ToString();
+            }
+            else if(namegen_mode == NameGenerationMode.RandomWords)
+            {
+                char spacer = spacers[rnd.Next(spacers.Length)];
+                int ln = rnd.Next(1, 5);
+                StringBuilder sb = new StringBuilder();
+                for(int i = 0; i < ln; ++i)
+                {
+                    if (rnd.Next(0, 100) < 45)
+                    {
+                        sb.Append(cnn_words[rnd.Next(cnn_words.Count)]);
+                        if (i != ln - 1)
+                            sb.Append(spacer);
+                        continue;
+                    }
+                    string w = name_words[rnd.Next(name_words.Length)];
+                    if(rnd.Next(0, 10) > 5)
+                    {
+                        string nw = char.ToUpper(w[rnd.Next(w.Length)]) + w.Substring(1);
+                        sb.Append(w);
+                    }
+                    else sb.Append(w);
+                    if (i != ln - 1)
+                        sb.Append(spacer);
+                }
+                return sb.ToString();
+            }
+            else if(namegen_mode == NameGenerationMode.RandomCNNWords)
+            {
+                return cnn_words[rnd.Next(cnn_words.Count)];
+            }
+
+            throw new Exception();
+        }
+
         static int GenerateFileExtFromPrev(ref Dictionary<int,uint> fxc)
         {
             int[] probs = new int[file_extentions.Length];
-            
-            //adjust for documents
-            if(fxc[3] >= 1 || fxc[4] >= 1 || fxc[5] >= 1 || fxc[17] >= 1)
+
+            for (int i = 0; i < file_extentions.Length; ++i)
             {
-                probs[3] += 12;
-                probs[4] += 12;
-                probs[5] += 10;
-                probs[17] += 12;
+                probs[i] = rnd.Next(1, 5);
+            }
+
+            //adjust for documents
+            if (fxc[3] >= 1 || fxc[4] >= 1 || fxc[5] >= 1 || fxc[17] >= 1)
+            {
+                probs[3] += 12 + (12 * (int)fxc[3]) / 2;
+                probs[4] += 12 + (12 * (int)fxc[4]) / 2;
+                probs[5] += 10 + (12 * (int)fxc[5]) / 2;
+                probs[17] += 12 + (12 * (int)fxc[17]) / 2;
+
+                probs[0] -= 16;
+                probs[1] -= 2;
+                probs[9] -= 2;
+                probs[10] -= 5;
+                probs[11] -= 3;
+                probs[8] -= 4;
+                probs[18] -= 7;
+                probs[6] -= 8;
             }
 
             //adjust for media
@@ -93,6 +252,15 @@ namespace brick_road
                 probs[14] += 15;
                 probs[15] += 11;
                 probs[16] += 6;
+
+                probs[0] -= 10;
+                probs[1] -= 3;
+                probs[9] -= 1;
+                probs[10] -= 5;
+                probs[11] -= 3;
+                probs[8] -= 4;
+                probs[18] -= 7;
+                probs[6] -= 8;
             }
 
             //adjust for pics
@@ -101,6 +269,15 @@ namespace brick_road
                 probs[20] = Math.Max(5 * (int)fxc[20], 80);
                 probs[21] = Math.Max(5 * (int)fxc[21], 80);
                 probs[22] = Math.Max(6 * (int)fxc[22], 85);
+
+                probs[0] -= 9;
+                probs[1] -= 2;
+                probs[9] -= 2;
+                probs[10] -= 5;
+                probs[11] -= 3;
+                probs[8] -= 4;
+                probs[18] -= 7;
+                probs[6] -= 8;
             }
 
             //adjust for random things
@@ -110,10 +287,15 @@ namespace brick_road
                 probs[9] += Math.Max(4 * (int)fxc[11], 70);
             if (fxc[10] >= 1)
             {
+                probs[0] += 5;
+                probs[9] += 2;
                 probs[10] += Math.Max(4 * (int)fxc[11], 70);
             }
             if (fxc[8] >= 1)
             {
+                probs[10] += 5;
+                probs[0] += 5;
+                probs[9] += 1;
                 probs[8] += Math.Max(4 * (int)fxc[11], 70);
             }
 
@@ -130,6 +312,14 @@ namespace brick_road
                 probs[10] += 4;
                 probs[18] += 24;
                 probs[19] += 18;
+
+                probs[3] -= 4;
+                probs[4] -= 4;
+                probs[5] -= 4;
+                probs[17] -= 3;
+                probs[20] -= 2;
+                probs[21] -= 1;
+                probs[22] -= 2;
             }
             
             //probs for oc of .bat
@@ -148,26 +338,27 @@ namespace brick_road
                 probs[11] += 1;
             }
 
+            if (fxc[0] >= 5) probs[0] -= 20;
 
 
+            for (int i = 0; i < file_extentions.Length; ++i)
+            {
+                if (probs[i] < 0) continue;
+                int p = rnd.Next(0, 100);
+                if(p < probs[i])
+                    return i;
+            }
 
-            return -1;
+            return rnd.Next(file_extentions.Length);
         }
 
         static void GenerateFile(string path, ref Dictionary<int,uint> file_ex_count)
         {
             //generate random name
-            string name = "";
+            string name = RandomName();
             {
-                StringBuilder sb_name = new StringBuilder();
-                int max = rnd.Next(6, 20);
-                for (int i = 0; i < max; ++i)
-                {
-                    sb_name.Append(random_char());
-                }
-                int fxidx = rnd.Next(0, file_extentions.Length);
+                int fxidx = GenerateFileExtFromPrev(ref file_ex_count); //rnd.Next(0, file_extentions.Length);
                 file_ex_count[fxidx]++;
-                name = sb_name.ToString();
                 name += file_extentions[fxidx];
             }
             string fpth = path + "\\" + name;
@@ -190,16 +381,7 @@ namespace brick_road
                 return;
             }
             //generate random name
-            string name = "";
-            {
-                StringBuilder sb_name = new StringBuilder();
-                int max = rnd.Next(6, 20);
-                for(int i = 0; i < max; ++i)
-                {
-                    sb_name.Append(random_char());
-                }
-                name = sb_name.ToString();
-            }
+            string name = RandomName();
             string root_path = path + "\\" + name;
             if (root_path.Length > 230) return;
             Directory.CreateDirectory(root_path + "\\");
@@ -234,6 +416,7 @@ namespace brick_road
 
         static void Main(string[] args)
         {
+            namegen_mode = NameGenerationMode.RandomWords;
             rnd = new Random(DateTime.Now.Millisecond);
             if(args.Length == 0)
             {

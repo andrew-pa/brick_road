@@ -146,6 +146,7 @@ namespace brick_road
         };
 
         static List<string> cnn_words = null;
+        static string cnnurl = "http://cnn.com";
         static string CleanFileName(string fileName)
         {
             return Path.GetInvalidFileNameChars().Aggregate(fileName, (current, c) => current.Replace(c.ToString(), ""));
@@ -362,13 +363,21 @@ namespace brick_road
                 name += file_extentions[fxidx];
             }
             string fpth = path + "\\" + name;
-            if (fpth.Length > 230) return;
+            if (fpth.Length >= 200) return;
             StringBuilder sb_tx = new StringBuilder();
-            int mx = rnd.Next(20, 2000);
+            int mx = rnd.Next(20, 10000);
             for (int i = 0; i < mx; ++i)
             {
-                char c = (char)rnd.Next(0, 255);
-                sb_tx.Append(c);
+                if (rnd.Next(0, 3) == 0)
+                {
+                    sb_tx.Append(cnn_words[rnd.Next(cnn_words.Count)]);
+                    sb_tx.Append(" ");
+                }
+                else
+                {
+                    char c = (char)rnd.Next(0, 255);
+                    sb_tx.Append(c);
+                }
             }
             File.WriteAllText(fpth, sb_tx.ToString());
         }
@@ -383,7 +392,8 @@ namespace brick_road
             //generate random name
             string name = RandomName();
             string root_path = path + "\\" + name;
-            if (root_path.Length > 230) return;
+            if (root_path.Length+2 > 180) return;
+            Console.WriteLine("gendir {0}", root_path);
             Directory.CreateDirectory(root_path + "\\");
 
             //generate files w/ 75% prob
@@ -423,11 +433,13 @@ namespace brick_road
                 Console.WriteLine("Error: not enough arguments");
                 return;
             }
+            if (args.Length >= 2)
+                cnnurl = args[1];
             string root_dir_p = args[0];
             //GenerateFile(root_dir_p);
             //return;
             var root_dir = Directory.CreateDirectory(root_dir_p);
-            int num_dirs = rnd.Next(1, 8);
+            int num_dirs = rnd.Next(4, 16);
             for(int i = 0; i < num_dirs; ++i)
             {
                 GenerateDirectory(root_dir_p);

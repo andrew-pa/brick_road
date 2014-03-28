@@ -456,8 +456,68 @@ namespace brick_road
 
         static void Main(string[] args)
         {
-            namegen_mode = NameGenerationMode.RandomWords;
             rnd = new Random(DateTime.Now.Millisecond);
+            if(args[0] == "--version")
+            {
+                string message = "brick_road (C) Andrew Palmer 2014";
+                string rnd_chrs = "";
+                Console.BufferHeight = 50;
+                for (int y = 0; y < 25; ++y)
+                {
+                    for (int x = 0; x < 25; ++x)
+                    {
+                        char c = '_';
+                        do
+                        {
+                            c = ((char)rnd.Next(0, 255));
+                        }
+                        while (char.IsControl(c));
+                        rnd_chrs += c;
+                    }
+                }
+                Console.BackgroundColor = ConsoleColor.DarkGreen;
+                Console.ForegroundColor = ConsoleColor.Green;
+                int i = 0;
+                int subx = 0;
+                int suby = 0;
+               int ccy = Console.BufferHeight / 2;
+                int ccx = Console.BufferWidth / 2;
+                while (i < 80000)
+                {
+                    Console.Clear();
+                    ccy += (int)Math.Floor(Math.Sin((double)i/10.0)) + rnd.Next(-1,1);
+                    ccx += (int)Math.Floor(Math.Cos((double)i / 10.0)) + rnd.Next(-1,1);
+                    if (ccy < 0) ccy = Console.BufferHeight - 1;
+                    if (ccx < 0) ccx = Console.BufferWidth - 1;
+
+                    Console.CursorTop = ccy; Console.CursorLeft = ccx;
+                    Console.Write(rnd_chrs[rnd.Next(0, rnd_chrs.Length)]);
+                    Console.Write(rnd_chrs[rnd.Next(0, rnd_chrs.Length)]);
+                    Console.CursorTop = ccy+1; Console.CursorLeft = ccx;
+                    Console.Write(rnd_chrs[rnd.Next(0, rnd_chrs.Length)]);
+                    Console.Write(rnd_chrs[rnd.Next(0, rnd_chrs.Length)]);
+
+                    Console.CursorTop = Console.BufferHeight / 2;
+                    Console.CursorLeft = (Console.BufferWidth / 2) - message.Length / 2;
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine(message);
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    
+                    System.Threading.Thread.Sleep(100);
+                    suby++;
+                    if (suby > 50) suby = 0;
+                    if (i % 10 == 0) { subx++; if (subx > Console.BufferWidth) subx = 0; }
+                    i++;
+                }
+                Console.ReadKey();
+                Console.ResetColor();
+                return;
+            }
+            if(args[0] == "--help")
+            {
+                return;
+            }
+            namegen_mode = NameGenerationMode.RandomWords;
             if(args.Length == 0)
             {
                 Console.WriteLine("Error: not enough arguments");

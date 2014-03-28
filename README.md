@@ -6,4 +6,4 @@ Spawning random directory trees like a video game
 Only required cmdline arg is the name of the root folder, like C:\junk
 Optional argument is a URL of a website to pull words off of 
 
-[See the wiki for binaries](
+[See the wiki for binaries](http://github.com/andrew-pa/brick_road/wiki)

@@ -72,6 +72,25 @@ namespace brick_road
             }
         }
 
+        static DateTime RandomFileTime(DateTime start)
+        {
+            DateTime d = start;
+            d = d.AddMilliseconds(rnd.Next(-998, 998) + rnd.NextDouble());
+            d = d.AddSeconds(rnd.Next(-58, 58) + rnd.NextDouble());
+            d = d.AddMinutes(rnd.Next(-58, 58) + rnd.NextDouble());
+            d = d.AddHours(rnd.Next(-58, 58) + rnd.NextDouble());
+            d = d.AddDays(rnd.Next(-30, 30) + rnd.NextDouble());
+            d = d.AddYears(rnd.Next(-4, 0));
+            return d;
+        }
+
+        static FileAttributes RandomFileAttribs()
+        {
+            if (rnd.Next(0, 20) == 7)
+                return FileAttributes.Hidden;
+            return FileAttributes.Normal;
+        }
+
         enum NameGenerationMode
         {
             RandomChars,
@@ -88,6 +107,7 @@ namespace brick_road
             ' ', '_', '-', '.',
         };
 
+        #region name words
         static string[] name_words =
         {
             "noodle",
@@ -144,6 +164,7 @@ namespace brick_road
            "doge",
            "coins",
         };
+        #endregion
 
         static List<string> cnn_words = null;
         static string cnnurl = "http://cnn.com";
@@ -379,7 +400,16 @@ namespace brick_road
                     sb_tx.Append(c);
                 }
             }
-            File.WriteAllText(fpth, sb_tx.ToString());
+            try
+            {
+                File.WriteAllText(fpth, sb_tx.ToString());
+                FileInfo fi = new FileInfo(fpth);
+                fi.CreationTime = RandomFileTime(DateTime.Now);
+                fi.LastAccessTime = RandomFileTime(fi.LastAccessTime);
+                fi.LastWriteTime = RandomFileTime(fi.LastWriteTime);
+                fi.Attributes = RandomFileAttribs();
+            }
+            catch { Console.WriteLine("!");  }
         }
 
         static void GenerateDirectory(string path)

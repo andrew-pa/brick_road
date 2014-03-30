@@ -460,60 +460,67 @@ namespace brick_road
             if(args[0] == "--version")
             {
                 string message = "brick_road (C) Andrew Palmer 2014";
-                string rnd_chrs = "";
                 Console.BufferHeight = 50;
-                for (int y = 0; y < 25; ++y)
-                {
-                    for (int x = 0; x < 25; ++x)
-                    {
-                        char c = '_';
-                        do
-                        {
-                            c = ((char)rnd.Next(0, 255));
-                        }
-                        while (char.IsControl(c));
-                        rnd_chrs += c;
-                    }
-                }
                 Console.BackgroundColor = ConsoleColor.DarkGreen;
                 Console.ForegroundColor = ConsoleColor.Green;
-                int i = 0;
-                int subx = 0;
-                int suby = 0;
                int ccy = Console.BufferHeight / 2;
                 int ccx = Console.BufferWidth / 2;
-                while (i < 80000)
+
+                int smx = rnd.Next(0, Console.BufferWidth-1);
+                int smy = rnd.Next(0, Console.BufferHeight-1);
+
+                ConsoleColor snake_color = ConsoleColor.Green;
+
+                Console.CursorVisible = false;
+
+                while (true)
                 {
                     //Console.Clear();
-                    ccy += (int)Math.Floor(Math.Sin((double)i/10.0)) + rnd.Next(-2,2);
-                    ccx += (int)Math.Floor(Math.Cos((double)i / 10.0)) + rnd.Next(-2,2);
-                    if (ccy < 0) ccy = Console.BufferHeight - 1;
-                    if (ccx < 0) ccx = Console.BufferWidth - 1;
-                    if (ccy > Console.BufferHeight) ccy = 0;
-                    if (ccx > Console.BufferWidth) ccx = 0;
+
+                    int d = rnd.Next(0, 4);
+                    int v = rnd.Next(0, 2);
+
+                    //0 1 2 3
+                    //U D L R
+
+                    if (d == 0) ccy += v;
+                    if (d == 1) ccy -= v;
+                    if (d == 2) ccx += v;
+                    if (d == 3) ccx -= v; 
+
+                    if (ccy < 0) ccy = Console.BufferHeight - 5;
+                    if (ccx < 0) ccx = Console.BufferWidth - 5;
+                    if (ccy >= Console.BufferHeight-1) ccy = 0;
+                    if (ccx >= Console.BufferWidth-1) ccx = 0;
+
+                    if(ccx == smx && ccy == smy)
+                    {
+                        //Console.Clear();
+                        smx = rnd.Next(0, Console.BufferWidth - 1);
+                        smy = rnd.Next(0, Console.BufferHeight - 1);
+                        snake_color = (ConsoleColor)rnd.Next(0, 15);
+                    }
 
                     Console.CursorTop = ccy; Console.CursorLeft = ccx;
-                    Console.Write(rnd_chrs[rnd.Next(0, rnd_chrs.Length)]);
-                    Console.Write(rnd_chrs[rnd.Next(0, rnd_chrs.Length)]);
-                    Console.CursorTop = Math.Min(ccy+1, Console.BufferHeight-1); Console.CursorLeft = ccx;
-                    Console.Write(rnd_chrs[rnd.Next(0, rnd_chrs.Length)]);
-                    Console.Write(rnd_chrs[rnd.Next(0, rnd_chrs.Length)]);
+                    Console.ForegroundColor = snake_color;
+                    Console.Write((char)rnd.Next(0, 255));
+                    Console.ForegroundColor = ConsoleColor.Green;
 
                     Console.CursorTop = Console.BufferHeight / 2;
                     Console.CursorLeft = (Console.BufferWidth / 2) - message.Length / 2;
                     Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.WriteLine(message);
                     Console.ForegroundColor = ConsoleColor.Green;
+
+                    Console.CursorTop = smy;
+                    Console.CursorLeft = smx;
+                    Console.BackgroundColor = ConsoleColor.Blue;
+                    Console.ForegroundColor = ConsoleColor.DarkCyan;
+                    Console.Write((char)2);
+                    Console.BackgroundColor = ConsoleColor.DarkGreen;
+                    Console.ForegroundColor = ConsoleColor.Green;
                     
-                    System.Threading.Thread.Sleep(100);
-                    suby++;
-                    if (suby > 50) suby = 0;
-                    if (i % 10 == 0) { subx++; if (subx > Console.BufferWidth) subx = 0; }
-                    i++;
                 }
-                Console.ReadKey();
-                Console.ResetColor();
-                return;
             }
             if(args[0] == "--help")
             {

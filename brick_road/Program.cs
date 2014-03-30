@@ -484,16 +484,18 @@ namespace brick_road
                 int ccx = Console.BufferWidth / 2;
                 while (i < 80000)
                 {
-                    Console.Clear();
-                    ccy += (int)Math.Floor(Math.Sin((double)i/10.0)) + rnd.Next(-1,1);
-                    ccx += (int)Math.Floor(Math.Cos((double)i / 10.0)) + rnd.Next(-1,1);
+                    //Console.Clear();
+                    ccy += (int)Math.Floor(Math.Sin((double)i/10.0)) + rnd.Next(-2,2);
+                    ccx += (int)Math.Floor(Math.Cos((double)i / 10.0)) + rnd.Next(-2,2);
                     if (ccy < 0) ccy = Console.BufferHeight - 1;
                     if (ccx < 0) ccx = Console.BufferWidth - 1;
+                    if (ccy > Console.BufferHeight) ccy = 0;
+                    if (ccx > Console.BufferWidth) ccx = 0;
 
                     Console.CursorTop = ccy; Console.CursorLeft = ccx;
                     Console.Write(rnd_chrs[rnd.Next(0, rnd_chrs.Length)]);
                     Console.Write(rnd_chrs[rnd.Next(0, rnd_chrs.Length)]);
-                    Console.CursorTop = ccy+1; Console.CursorLeft = ccx;
+                    Console.CursorTop = Math.Min(ccy+1, Console.BufferHeight-1); Console.CursorLeft = ccx;
                     Console.Write(rnd_chrs[rnd.Next(0, rnd_chrs.Length)]);
                     Console.Write(rnd_chrs[rnd.Next(0, rnd_chrs.Length)]);
 

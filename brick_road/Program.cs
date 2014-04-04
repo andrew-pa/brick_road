@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Net;
+using System.Diagnostics;
 
 namespace brick_road
 {
@@ -457,9 +458,10 @@ namespace brick_road
         static void Main(string[] args)
         {
             rnd = new Random(DateTime.Now.Millisecond);
-            if(args[0] == "--version")
+            #region version option
+            if (args[0] == "--version")
             {
-                string message = "brick_road (C) Andrew Palmer 2014";
+                string message = "brick_road version [" + System.Reflection.Assembly.GetCallingAssembly().GetName().Version  + "] (C) Andrew Palmer 2014";
                 Console.BufferHeight = 50;
                 Console.BackgroundColor = ConsoleColor.DarkGreen;
                 Console.ForegroundColor = ConsoleColor.Green;
@@ -522,7 +524,8 @@ namespace brick_road
                     
                 }
             }
-            if(args[0] == "--help")
+            #endregion
+            if (args[0] == "--help")
             {
                 return;
             }
@@ -539,10 +542,15 @@ namespace brick_road
             //return;
             var root_dir = Directory.CreateDirectory(root_dir_p);
             int num_dirs = rnd.Next(4, 16);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             for(int i = 0; i < num_dirs; ++i)
             {
                 GenerateDirectory(root_dir_p);
             }
+            sw.Stop();
+            Console.WriteLine("Time: {0} ms", sw.ElapsedMilliseconds);
+            Console.ReadKey();
         }
     }
 }

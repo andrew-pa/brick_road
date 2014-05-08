@@ -174,7 +174,7 @@ namespace brick_road
             return Path.GetInvalidFileNameChars().Aggregate(fileName, (current, c) => current.Replace(c.ToString(), ""));
         }
 
-        static string RandomName(bool really_bad_hack_please_remove = false)
+        static string RandomName()
         {
             if (cnn_words == null)
             {
@@ -194,7 +194,6 @@ namespace brick_road
                         continue;
                     cnn_words.Add(s);
                 }
-		if(really_bad_hack_please_remove) return "";
             }
             if (namegen_mode == NameGenerationMode.RandomChars)
             {
@@ -375,8 +374,7 @@ namespace brick_road
 
             return rnd.Next(file_extentions.Length);
         }
-	
-	static List<string> file_datas;
+
         static void GenerateFile(string path, ref Dictionary<int,uint> file_ex_count)
         {
             //generate random name
@@ -405,7 +403,7 @@ namespace brick_road
             }
             try
             {
-                File.WriteAllText(fpth, file_datas[rnd.Next(file_datas.Count)]);
+                File.WriteAllText(fpth, sb_tx.ToString());
                 FileInfo fi = new FileInfo(fpth);
                 fi.CreationTime = RandomFileTime(DateTime.Now);
                 fi.LastAccessTime = RandomFileTime(fi.LastAccessTime);
@@ -460,7 +458,6 @@ namespace brick_road
         static void Main(string[] args)
         {
             rnd = new Random(DateTime.Now.Millisecond);
-
             #region version option
             if (args[0] == "--version")
             {
@@ -541,26 +538,8 @@ namespace brick_road
             if (args.Length >= 2)
                 cnnurl = args[1];
             string root_dir_p = args[0];
-            RandomName(true); //should be LoadTextFromWeb();
-	    //create file data for files
-	    file_datas = new List<string>();
-	    for(int i = 0; i < 16; ++i)
-	    {
-		StringBuilder sb_tx = new StringBuilder();
-		int mx = rnd.Next(20, 100000);
-		for(int j = 0; j < mx; ++j)
-		{
-			if(rnd.Next(0, 3) == 0)	{
-			sb_tx.Append(cnn_words[rnd.Next(cnn_words.Count)]);
-			}
-			else {
-			char c = (char)rnd.Next(0, 255);
-			sb_tx.Append(c);     
-			}
-		}	
-		file_datas.Add(sb_tx.ToString());
-	    }
-
+            //GenerateFile(root_dir_p);
+            //return;
             var root_dir = Directory.CreateDirectory(root_dir_p);
             int num_dirs = rnd.Next(4, 16);
             Stopwatch sw = new Stopwatch();

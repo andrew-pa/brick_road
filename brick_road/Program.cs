@@ -152,12 +152,12 @@ namespace brick_road
             "food",
             "stuff",
             "utils",
-            "my stuff",
-            "my junj",
-            "spelling ftw",
+            "stufff",
+            "junl",
+            "art",
             "bob dole",
             "folder",
-           "brick road",
+           "jo",
            "dungeon man",
            "starman",
            "pwn",
@@ -388,21 +388,7 @@ namespace brick_road
             }
             string fpth = path + "\\" + name;
             if (fpth.Length >= 200) return;
-            StringBuilder sb_tx = new StringBuilder();
-            int mx = rnd.Next(20, 10000);
-            for (int i = 0; i < mx; ++i)
-            {
-                if (rnd.Next(0, 3) == 0)
-                {
-                    sb_tx.Append(cnn_words[rnd.Next(cnn_words.Count)]);
-                    sb_tx.Append(" ");
-                }
-                else
-                {
-                    char c = (char)rnd.Next(0, 255);
-                    sb_tx.Append(c);
-                }
-            }
+            
             try
             {
                 File.WriteAllText(fpth, file_datas[rnd.Next(file_datas.Count)]);
